@@ -4,8 +4,11 @@ import DrawBoard
 import EstimateSolution
 import Place
 import random
+import time
 
 # https://puzzlemadness.co.uk/towers/large/2022/10/19
+
+start_time = time.time()
 
 print_generations = False
 
@@ -13,6 +16,9 @@ left_row = [2,3,3,5,1]
 top_row = [2,1,2,3,3]
 right_row = [2,3,2,1,4]
 bottom_row = [1,5,2,3,2]
+
+execution_time_list = []
+cost_result_list = []
 
 # left_row = [0, 4, 0, 0, 2]
 # top_row = [3, 0, 4, 3, 2]
@@ -135,7 +141,10 @@ mutation_flag = False
 global_minimum = create_solution_copy(current_solution)
 global_best_cost = EstimateSolution.estimate_solution(task, global_minimum)
 
-for iteration in range(15000):
+execution_time_list.append((time.time()-start_time).__round__(2))
+cost_result_list.append(global_best_cost)
+
+for iteration in range(5000):
     # Which row
     row = iteration % n
     best_cost = generation_cost
@@ -187,9 +196,9 @@ for iteration in range(15000):
         # column1 = random.randint(0, n - 1)
         # column2 = generate_destinations(column1, n)[random.randint(0, n - 2)]
         # move_cell(current_solution[row], column1, column2)
-
-            print("Mutating solution, generation:", iteration)
-            mutate_solution_to_most_unused_value(current_solution,debug=True)
+            if debug:
+                print("Mutating solution, generation:", iteration)
+            mutate_solution_to_most_unused_value(current_solution,debug=False)
             without_improvement = 0
             mutation_flag = True
 
@@ -208,15 +217,16 @@ for iteration in range(15000):
         global_minimum = create_solution_copy(current_solution)
 
     add_population(current_solution)
+    execution_time_list.append((time.time() - start_time).__round__(2))
+    cost_result_list.append(best_cost)
 
 DrawBoard.draw_board(task, global_minimum)
 print("Solution cost:", EstimateSolution.estimate_solution(task, global_minimum))
 
 print("Generations:", iteration+1)
 
-# print(current_solution[0][0].population)
-# print(current_solution[0][0].min_population())
-# print(current_solution[1][1].population)
-# print(current_solution[1][1].min_population())
-#
-# print(find_min_population(current_solution, False).debug())
+execution_time_list.append((time.time()-start_time).__round__(2))
+cost_result_list.append(global_best_cost)
+
+for result in range(len(cost_result_list)):
+    print(str(execution_time_list[result])+','+str(cost_result_list[result]))
